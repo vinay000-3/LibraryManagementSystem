@@ -15,5 +15,6 @@ public DbSet<User> Users { get; set; }
 public DbSet<MembershipPlan> MembershipPlans { get; set; }
 
 public DbSet<BookCategory> BookCategories { get; set; }
+public DbSet<Book> Books { get; set; }
     }
 }

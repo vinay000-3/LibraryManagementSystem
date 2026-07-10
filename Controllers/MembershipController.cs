@@ -23,7 +23,7 @@ namespace LibraryManagementSystem.Controllers
             return Ok("Membership Controller is Working");
         }
 
-        // CREATE MEMBERSHIP
+        
         [HttpPost("create")]
         public async Task<IActionResult> Create(CreateMembershipPlanRequest request)
         {
@@ -32,7 +32,7 @@ namespace LibraryManagementSystem.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Check duplicate membership name
+            
             var existingPlan = await _context.MembershipPlans
                 .FirstOrDefaultAsync(x => x.MembershipName == request.MembershipName);
 
@@ -41,7 +41,7 @@ namespace LibraryManagementSystem.Controllers
                 return BadRequest("Membership Plan already exists.");
             }
 
-            // Generate MembershipPlanId
+            
             string membershipPlanId = "MP0001";
 
             var lastPlan = await _context.MembershipPlans
@@ -54,9 +54,7 @@ namespace LibraryManagementSystem.Controllers
                 membershipPlanId = "MP" + (number + 1).ToString("D4");
             }
 
-            // ==========================
-            // Membership Fee Calculation
-            // ==========================
+            
 
             decimal monthlyOperationalCost =
                 request.MaintenanceCost +
@@ -96,7 +94,7 @@ namespace LibraryManagementSystem.Controllers
 
             membershipFee = Math.Round(membershipFee, 2);
 
-            // Save Membership Plan
+            
             var membershipPlan = new MembershipPlan
             {
                 MembershipPlanId = membershipPlanId,
@@ -130,7 +128,7 @@ namespace LibraryManagementSystem.Controllers
             });
         }
 
-        // GET ALL MEMBERSHIP PLANS
+        
         [HttpGet]
         public async Task<IActionResult> GetAllMembershipPlans()
         {
@@ -139,7 +137,7 @@ namespace LibraryManagementSystem.Controllers
             return Ok(membershipPlans);
         }
 
-        // GET MEMBERSHIP BY ID
+        
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMembershipById(string id)
         {
@@ -154,7 +152,7 @@ namespace LibraryManagementSystem.Controllers
             return Ok(membershipPlan);
         }
 
-        // UPDATE MEMBERSHIP
+       
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMembershipPlan(string id, UpdateMembershipPlanRequest request)
         {
@@ -181,9 +179,7 @@ namespace LibraryManagementSystem.Controllers
                 return BadRequest("Another Membership Plan with this name already exists.");
             }
 
-            // ==========================
-            // Membership Fee Calculation
-            // ==========================
+           
 
             decimal monthlyOperationalCost =
                 request.MaintenanceCost +
@@ -223,7 +219,7 @@ namespace LibraryManagementSystem.Controllers
 
             membershipFee = Math.Round(membershipFee, 2);
 
-            // Update Values
+            
             membershipPlan.MembershipName = request.MembershipName;
             membershipPlan.DurationMonths = request.DurationMonths;
             membershipPlan.MaximumBooksAllowed = request.MaximumBooksAllowed;
@@ -251,7 +247,7 @@ namespace LibraryManagementSystem.Controllers
             });
         }
 
-        // DELETE MEMBERSHIP
+        
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMembershipPlan(string id)
         {

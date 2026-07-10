@@ -4,10 +4,10 @@
 
 namespace LibraryManagementSystem.Migrations
 {
-    /// <inheritdoc />
+    
     public partial class AddMembershipDiscountPercentage : Migration
     {
-        /// <inheritdoc />
+       
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<decimal>(
@@ -18,7 +18,7 @@ namespace LibraryManagementSystem.Migrations
                 defaultValue: 0m);
         }
 
-        /// <inheritdoc />
+       
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(

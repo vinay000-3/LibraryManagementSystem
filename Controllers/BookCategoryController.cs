@@ -30,10 +30,9 @@ public async Task<IActionResult> Create(CreateBookCategoryRequest request)
         return BadRequest(ModelState);
     }
 
-    // Remove leading/trailing spaces
+   
     request.CategoryName = request.CategoryName.Trim();
 
-    // Check duplicate category name
     var existingCategory = await _context.BookCategories
         .FirstOrDefaultAsync(x => x.CategoryName.ToLower() == request.CategoryName.ToLower());
 
@@ -42,7 +41,7 @@ public async Task<IActionResult> Create(CreateBookCategoryRequest request)
         return BadRequest("Category already exists.");
     }
 
-    // Generate Category Id
+    
     string categoryId = "BC0001";
 
     var lastCategory = await _context.BookCategories
@@ -55,7 +54,7 @@ public async Task<IActionResult> Create(CreateBookCategoryRequest request)
         categoryId = "BC" + (number + 1).ToString("D4");
     }
 
-    // Create object
+    
     var category = new BookCategory
     {
         CategoryId = categoryId,
@@ -86,7 +85,7 @@ public async Task<IActionResult> GetAllCategories()
 [HttpGet("{categoryName}")]
 public async Task<IActionResult> GetCategoryByName(string categoryName)
 {
-    // Remove extra spaces
+    
     categoryName = categoryName.Trim();
 
     var category = await _context.BookCategories
@@ -110,7 +109,7 @@ public async Task<IActionResult> UpdateCategory(string id, UpdateBookCategoryReq
 
     request.CategoryName = request.CategoryName.Trim();
 
-    // Find category
+    
     var category = await _context.BookCategories
         .FirstOrDefaultAsync(x => x.CategoryId == id);
 
@@ -119,7 +118,6 @@ public async Task<IActionResult> UpdateCategory(string id, UpdateBookCategoryReq
         return NotFound("Category not found.");
     }
 
-    // Check duplicate name (ignore current category)
     var existingCategory = await _context.BookCategories
         .FirstOrDefaultAsync(x =>
             x.CategoryName.ToLower() == request.CategoryName.ToLower()
