@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryManagementSystem.Migrations
 {
     [DbContext(typeof(LibraryDbContext))]
-    [Migration("20260709172050_AddBook")]
-    partial class AddBook
+    [Migration("20260715044458_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -179,54 +179,68 @@ namespace LibraryManagementSystem.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<string>("Aadhaar")
+                    b.Property<string>("Address")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
 
-                    b.Property<string>("ApprovalStatus")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("MembershipEndDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("MembershipPlanId")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
-                    b.Property<string>("MembershipStatus")
+                    b.Property<DateTime>("MembershipStartDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("MobileNumber")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<decimal>("PaidMembershipFee")
                         .HasColumnType("decimal(65,30)");
 
-                    b.Property<string>("Password")
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("RegistrationStatus")
+                        .HasColumnType("int");
 
-                    b.Property<DateTime>("RegistrationDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("UserRole")
+                        .HasColumnType("int");
 
                     b.HasKey("UserId");
+
+                    b.HasIndex("MembershipPlanId");
 
                     b.ToTable("Users");
                 });
@@ -240,6 +254,17 @@ namespace LibraryManagementSystem.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("LibraryManagementSystem.Models.User", b =>
+                {
+                    b.HasOne("LibraryManagementSystem.Models.MembershipPlan", "MembershipPlan")
+                        .WithMany()
+                        .HasForeignKey("MembershipPlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MembershipPlan");
                 });
 #pragma warning restore 612, 618
         }
