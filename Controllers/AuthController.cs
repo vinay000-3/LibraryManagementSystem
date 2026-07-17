@@ -5,29 +5,36 @@ using LibraryManagementSystem.Helpers;
 using LibraryManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace LibraryManagementSystem.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class AuthController : ControllerBase
     {
         private readonly LibraryDbContext _context;
+private readonly JwtHelper _jwtHelper;
 
-        public AuthController(LibraryDbContext context)
-        {
-            _context = context;
-        }
-
+public AuthController(
+    LibraryDbContext context,
+    JwtHelper jwtHelper)
+{
+    _context = context;
+    _jwtHelper = jwtHelper;
+}
+[AllowAnonymous]
         [HttpGet("test")]
         public IActionResult Test()
         {
             return Ok("Auth Controller is Working");
         }
+        
 
         // ---------------- SELF REGISTRATION ----------------
-
+[AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterUserRequest request)
         {
@@ -187,6 +194,7 @@ string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
             });
         }
         // Get Pending Registrations
+        [Authorize(Roles = "Admin")]
 [HttpGet("pending")]
 public async Task<IActionResult> GetPendingRegistrations()
 {
@@ -207,6 +215,7 @@ public async Task<IActionResult> GetPendingRegistrations()
 }
 
 // Approve Registration
+[Authorize(Roles = "Admin")]
 [HttpPut("approve/{userId}")]
 public async Task<IActionResult> ApproveRegistration(string userId)
 {
@@ -235,6 +244,7 @@ public async Task<IActionResult> ApproveRegistration(string userId)
 }
 
 // Reject Registration
+[Authorize(Roles = "Admin")]
 [HttpPut("reject/{userId}")]
 public async Task<IActionResult> RejectRegistration(
     string userId,
@@ -263,6 +273,65 @@ public async Task<IActionResult> RejectRegistration(
         Message = "User registration rejected.",
         Reason = request.Reason
     });
+}
+// ---------------- LOGIN ----------------
+[AllowAnonymous]
+[HttpPost("login")]
+public async Task<IActionResult> Login(LoginRequest request)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+
+    // Trim Email
+    string email = request.Email.Trim().ToLower();
+
+    // Find User
+    var user = await _context.Users
+        .FirstOrDefaultAsync(x => x.Email.ToLower() == email);
+
+    if (user == null)
+    {
+        return BadRequest("Invalid Email or Password.");
+    }
+
+    // Check Registration Status
+    if (user.RegistrationStatus == RegistrationStatus.Pending)
+    {
+        return BadRequest("Your registration is pending admin approval.");
+    }
+
+    if (user.RegistrationStatus == RegistrationStatus.Rejected)
+    {
+        return BadRequest("Your registration has been rejected.");
+    }
+
+    // Verify Password
+    bool isPasswordValid = BCrypt.Net.BCrypt.Verify(
+        request.Password,
+        user.PasswordHash);
+
+    if (!isPasswordValid)
+    {
+        return BadRequest("Invalid Email or Password.");
+    }
+
+    string token = _jwtHelper.GenerateToken(user);
+
+return Ok(new
+{
+    Success = true,
+    Message = "Login Successful.",
+    Token = token,
+    User = new
+    {
+        user.UserId,
+        user.FullName,
+        user.Email,
+        Role = user.UserRole
+    }
+});
 }
     }
 }
