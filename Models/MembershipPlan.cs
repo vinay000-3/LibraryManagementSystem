@@ -17,6 +17,9 @@ namespace LibraryManagementSystem.Models
         public int MaximumBooksAllowed { get; set; }
 
         [Required]
+public int BorrowDurationDays { get; set; }
+
+        [Required]
         public int MaximumReservationsAllowed { get; set; }
 
         [Required]

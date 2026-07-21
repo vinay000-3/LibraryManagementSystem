@@ -149,8 +149,13 @@ public AuthController(
             }
 
             // Generate User Id
-            int userCount = await _context.Users.CountAsync();
-            string userId = IdGenerator.GenerateUserId(userCount);
+            // Generate User Id
+string? lastUserId = await _context.Users
+    .OrderByDescending(x => x.UserId)
+    .Select(x => x.UserId)
+    .FirstOrDefaultAsync();
+
+string userId = IdGenerator.GenerateUserId(lastUserId);
 
             // Membership Dates
             DateTime membershipStartDate = DateTime.Now;

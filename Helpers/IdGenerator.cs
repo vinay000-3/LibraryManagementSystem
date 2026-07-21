@@ -3,63 +3,69 @@ namespace LibraryManagementSystem.Helpers
     public static class IdGenerator
     {
         // Common Method
-        private static string GenerateId(string prefix, int count)
+        private static string GenerateNextId(string prefix, string? lastId)
         {
-            return $"{prefix}{(count + 1).ToString("D4")}";
+            if (string.IsNullOrWhiteSpace(lastId))
+            {
+                return $"{prefix}0001";
+            }
+
+            int lastNumber = int.Parse(lastId.Substring(prefix.Length));
+            return $"{prefix}{(lastNumber + 1):D4}";
         }
 
         // User
-        public static string GenerateUserId(int count)
+        public static string GenerateUserId(string? lastUserId)
         {
-            return GenerateId("USR", count);
+            return GenerateNextId("USR", lastUserId);
         }
 
         // Membership Plan
-        public static string GenerateMembershipPlanId(int count)
+        public static string GenerateMembershipPlanId(string? lastMembershipPlanId)
         {
-            return GenerateId("MP", count);
+            return GenerateNextId("MP", lastMembershipPlanId);
         }
 
         // Book Category
-        public static string GenerateBookCategoryId(int count)
+        public static string GenerateBookCategoryId(string? lastBookCategoryId)
         {
-            return GenerateId("BC", count);
+            return GenerateNextId("BC", lastBookCategoryId);
         }
 
         // Book
-        public static string GenerateBookId(int count)
+        public static string GenerateBookId(string? lastBookId)
         {
-            return GenerateId("BK", count);
+            return GenerateNextId("BK", lastBookId);
         }
 
         // Book Copy
-        public static string GenerateBookCopyId(int count)
+        public static string GenerateBookCopyId(string? lastBookCopyId)
         {
-            return GenerateId("CP", count);
+            return GenerateNextId("CP", lastBookCopyId);
         }
 
         // Borrow
-        public static string GenerateBorrowId(int count)
+        public static string GenerateBorrowId(string? lastBorrowId)
         {
-            return GenerateId("BR", count);
+            return GenerateNextId("BR", lastBorrowId);
         }
 
         // Return
-        public static string GenerateReturnId(int count)
+        public static string GenerateReturnId(string? lastReturnId)
         {
-            return GenerateId("RT", count);
+            return GenerateNextId("RT", lastReturnId);
         }
 
         // Reservation
-        public static string GenerateReservationId(int count)
+        public static string GenerateReservationId(string? lastReservationId)
         {
-            return GenerateId("RS", count);
+            return GenerateNextId("RS", lastReservationId);
         }
 
         // Fine
-        public static string GenerateFineId(int count)
+        public static string GenerateFineId(string? lastFineId)
         {
-            return GenerateId("FN", count);
+            return GenerateNextId("FN", lastFineId);
         }
     }
 }
