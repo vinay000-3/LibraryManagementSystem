@@ -5,37 +5,51 @@ using LibraryManagementSystem.Interfaces;
 using LibraryManagementSystem.Models;
 using LibraryManagementSystem.Enums;
 using Microsoft.EntityFrameworkCore;
+using LibraryManagementSystem.DTOs.ReturnWorkflow;
 
 namespace LibraryManagementSystem.Services
 {
-    public class BorrowService : IBorrowService
-    {
-        private readonly LibraryDbContext _context;
+    using Microsoft.AspNetCore.Http;
 
-        public BorrowService(LibraryDbContext context)
-        {
-            _context = context;
-        }
+public class BorrowService : IBorrowService
+{
+    private readonly LibraryDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public BorrowService(
+        LibraryDbContext context,
+        IHttpContextAccessor httpContextAccessor)
+    {
+        _context = context;
+        _httpContextAccessor = httpContextAccessor;
+    }
 public async Task<BorrowBookResponseDto> BorrowBookAsync(BorrowBookRequestDto request)
 {
-    // 1. Get User
+    // 1. Get Logged-in User Id from JWT
+    var userId = _httpContextAccessor.HttpContext?.User
+        .FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+    if (string.IsNullOrEmpty(userId))
+        throw new Exception("User is not authenticated.");
+
+    // 2. Get User
     var user = await _context.Users
         .Include(x => x.MembershipPlan)
-        .FirstOrDefaultAsync(x => x.UserId == request.UserId);
+        .FirstOrDefaultAsync(x => x.UserId == userId);
 
     if (user == null)
-    throw new Exception("User not found.");
+        throw new Exception("User not found.");
 
-if (user.MembershipPlan == null)
-    throw new Exception("Membership plan not found.");
+    if (user.MembershipPlan == null)
+        throw new Exception("Membership plan not found.");
 
-if (user.RegistrationStatus != RegistrationStatus.Approved)
-    throw new Exception("User is not approved.");
+    if (user.RegistrationStatus != RegistrationStatus.Approved)
+        throw new Exception("User is not approved.");
 
     if (user.MembershipEndDate < DateTime.Now)
         throw new Exception("Membership has expired.");
 
-    // 2. Get Book
+    // 3. Get Book
     var book = await _context.Books
         .FirstOrDefaultAsync(x => x.BookId == request.BookId);
 
@@ -44,47 +58,48 @@ if (user.RegistrationStatus != RegistrationStatus.Approved)
 
     if (book.AvailableCopies <= 0)
         throw new Exception("Book is not available.");
-        if (book.BookStatus != BookStatus.Available)
-    throw new Exception("Book is currently unavailable for borrowing.");
 
-    // 3. Borrow Limit
+    if (book.BookStatus != BookStatus.Available)
+        throw new Exception("Book is currently unavailable for borrowing.");
+
+    // 4. Borrow Limit
     int borrowedBooks = await _context.BorrowBooks.CountAsync(x =>
-        x.UserId == request.UserId &&
+        x.UserId == userId &&
         x.BorrowStatus == BorrowStatus.Borrowed);
 
     if (borrowedBooks >= user.MembershipPlan.MaximumBooksAllowed)
         throw new Exception("Borrow limit reached.");
 
-    // 4. Already Borrowed
+    // 5. Already Borrowed
     bool alreadyBorrowed = await _context.BorrowBooks.AnyAsync(x =>
-        x.UserId == request.UserId &&
+        x.UserId == userId &&
         x.BookId == request.BookId &&
         x.BorrowStatus == BorrowStatus.Borrowed);
 
     if (alreadyBorrowed)
         throw new Exception("Book already borrowed.");
 
-    // 5. Due Date
+    // 6. Due Date
     DateTime dueDate = DateTime.Now.AddDays(user.MembershipPlan.BorrowDurationDays);
 
-    
-   // 6. Generate Borrow Id
-string borrowId = "BR0001";
+    // 7. Generate Borrow Id
+    string borrowId = "BR0001";
 
-var lastBorrow = await _context.BorrowBooks
-    .OrderByDescending(x => x.BorrowId)
-    .FirstOrDefaultAsync();
+    var lastBorrow = await _context.BorrowBooks
+        .OrderByDescending(x => x.BorrowId)
+        .FirstOrDefaultAsync();
 
-if (lastBorrow != null)
-{
-    int number = int.Parse(lastBorrow.BorrowId.Substring(2));
-    borrowId = "BR" + (number + 1).ToString("D4");
-}
+    if (lastBorrow != null)
+    {
+        int number = int.Parse(lastBorrow.BorrowId.Substring(2));
+        borrowId = "BR" + (number + 1).ToString("D4");
+    }
 
+    // 8. Create Borrow Record
     BorrowBook borrow = new BorrowBook
     {
         BorrowId = borrowId,
-        UserId = request.UserId,
+        UserId = userId,
         BookId = request.BookId,
         BorrowDate = DateTime.Now,
         DueDate = dueDate,
@@ -92,7 +107,7 @@ if (lastBorrow != null)
         ReturnStatus = ReturnStatus.None
     };
 
-    // 7. Update Inventory
+    // 9. Update Inventory
     book.AvailableCopies--;
     book.BorrowedCopies++;
 
@@ -100,7 +115,8 @@ if (lastBorrow != null)
 
     await _context.SaveChangesAsync();
 
-    return new BorrowBookResponseDto
+    // 10. Return Response
+       return new BorrowBookResponseDto
     {
         BorrowId = borrowId,
         UserName = user.FullName,
@@ -110,9 +126,15 @@ if (lastBorrow != null)
         Message = "Book borrowed successfully."
     };
 }
+
 public async Task<ReturnBookResponseDto> ReturnBookAsync(ReturnBookRequestDto request)
 {
-    // 1. Get Borrow Record
+    var userId = _httpContextAccessor.HttpContext?.User
+        .FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+    if (string.IsNullOrEmpty(userId))
+        throw new Exception("User is not authenticated.");
+
     var borrow = await _context.BorrowBooks
         .Include(x => x.User)
         .Include(x => x.Book)
@@ -121,49 +143,88 @@ public async Task<ReturnBookResponseDto> ReturnBookAsync(ReturnBookRequestDto re
             x.BorrowStatus == BorrowStatus.Borrowed);
 
     if (borrow == null)
-        throw new Exception("Borrow record not found or book already returned.");
+        throw new Exception("Borrow record not found.");
 
-        if (borrow.User == null || borrow.Book == null)
+    if (borrow.User == null || borrow.Book == null)
         throw new Exception("Related user or book not found.");
 
-      // 2. Update Return Details
-    borrow.ReturnDate = DateTime.Now;
-    borrow.BorrowStatus = BorrowStatus.Returned;
-    borrow.ReturnStatus = ReturnStatus.Completed;
+    if (borrow.UserId != userId)
+        throw new Exception("You can return only your own borrowed books.");
 
-    // 3. Update Book Inventory
-    borrow.Book.AvailableCopies++;
-    borrow.Book.BorrowedCopies--;
+    if (borrow.ReturnStatus == ReturnStatus.Completed)
+        throw new Exception("Book has already been returned.");
 
-    // 4. Calculate Late Fine
-bool isLateReturn = false;
-int lateDays = 0;
-decimal fineAmount = 0;
+    if (borrow.ReturnStatus != ReturnStatus.None)
+        throw new Exception("Return request has already been submitted.");
 
-if (borrow.ReturnDate.Value.Date > borrow.DueDate.Date)
-{
-    isLateReturn = true;
+    // Submit return request
+    borrow.ReturnStatus = ReturnStatus.PendingLibrarian;
 
-    lateDays = (borrow.ReturnDate.Value.Date - borrow.DueDate.Date).Days;
+    await _context.SaveChangesAsync();
 
-    fineAmount = lateDays * 10;
+    return new ReturnBookResponseDto
+    {
+        BorrowId = borrow.BorrowId,
+        UserName = borrow.User.FullName,
+        BookTitle = borrow.Book.Title,
+        ReturnDate = DateTime.Now,
+        IsLateReturn = false,
+        LateDays = 0,
+        FineAmount = 0,
+        Message = "Return request submitted successfully."
+    };
 }
 
-// 5. Save Changes
-await _context.SaveChangesAsync();
-
-// 6. Return Response
-return new ReturnBookResponseDto
+public async Task<LibrarianReviewResponseDto> ReviewReturnByLibrarianAsync(
+    LibrarianReviewRequestDto request)
 {
-    BorrowId = borrow.BorrowId,
-    UserName = borrow.User.FullName,
-    BookTitle = borrow.Book.Title,
-    ReturnDate = borrow.ReturnDate.Value,
-    IsLateReturn = isLateReturn,
-    LateDays = lateDays,
-    FineAmount = fineAmount,
-    Message = "Book returned successfully."
-};
+    var employeeId = _httpContextAccessor.HttpContext?.User
+        .FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+    if (string.IsNullOrEmpty(employeeId))
+        throw new Exception("Employee is not authenticated.");
+
+    var borrow = await _context.BorrowBooks
+        .Include(x => x.Book)
+        .FirstOrDefaultAsync(x =>
+            x.BorrowId == request.BorrowId &&
+            x.ReturnStatus == ReturnStatus.PendingLibrarian);
+
+    if (borrow == null)
+        throw new Exception("This return request has already been reviewed by the librarian.");
+
+    if (borrow.Book == null)
+        throw new Exception("Book not found.");
+
+    int lateDays = 0;
+    decimal lateFine = 0;
+
+    if (DateTime.Now.Date > borrow.DueDate.Date)
+    {
+        lateDays = (DateTime.Now.Date - borrow.DueDate.Date).Days;
+        lateFine = lateDays * 10;
+    }
+
+    borrow.LateFine = lateFine;
+    borrow.LateFinePaid = request.LateFinePaid;
+    borrow.LibrarianId = employeeId;
+    borrow.ReturnStatus = ReturnStatus.PendingReturnVerificationOfficer;
+
+    await _context.SaveChangesAsync();
+
+    return new LibrarianReviewResponseDto
+    {
+        BorrowId = borrow.BorrowId,
+        LateDays = lateDays,
+        LateFine = lateFine,
+        Message = "Return forwarded to Return Verification Officer."
+    };
+}
+
+public async Task<ReturnVerificationResponseDto> VerifyReturnAsync(
+    ReturnVerificationRequestDto request)
+{
+    throw new NotImplementedException();
 }
     }
 }

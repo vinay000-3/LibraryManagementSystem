@@ -37,6 +37,24 @@ namespace LibraryManagementSystem.Models
 
         public BookCondition? BookCondition { get; set; }
 
+        public decimal LateFine { get; set; }
+
+    public bool LateFinePaid { get; set; }
+
+    public decimal DamageFine { get; set; }
+
+    public bool DamageFinePaid { get; set; }
+
+    public string? LibrarianId { get; set; }
+
+    [ForeignKey(nameof(LibrarianId))]
+    public LibraryEmployee? Librarian { get; set; }
+
+    public string? ReturnVerificationOfficerId { get; set; }
+
+    [ForeignKey(nameof(ReturnVerificationOfficerId))]
+    public LibraryEmployee? ReturnVerificationOfficer { get; set; }
+
         public int NumberOfRenewals { get; set; }
 
         public bool IsRenewed { get; set; }

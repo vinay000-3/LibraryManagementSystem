@@ -4,6 +4,7 @@ using LibraryManagementSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryManagementSystem.Migrations
 {
     [DbContext(typeof(LibraryDbContext))]
-    partial class LibraryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260721064953_AddLibraryEmployeesTable")]
+    partial class AddLibraryEmployeesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -133,26 +136,11 @@ namespace LibraryManagementSystem.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<decimal>("DamageFine")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<bool>("DamageFinePaid")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime(6)");
 
                     b.Property<bool>("IsRenewed")
                         .HasColumnType("tinyint(1)");
-
-                    b.Property<decimal>("LateFine")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<bool>("LateFinePaid")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("LibrarianId")
-                        .HasColumnType("varchar(255)");
 
                     b.Property<int>("NumberOfRenewals")
                         .HasColumnType("int");
@@ -163,9 +151,6 @@ namespace LibraryManagementSystem.Migrations
                     b.Property<int>("ReturnStatus")
                         .HasColumnType("int");
 
-                    b.Property<string>("ReturnVerificationOfficerId")
-                        .HasColumnType("varchar(255)");
-
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
@@ -173,10 +158,6 @@ namespace LibraryManagementSystem.Migrations
                     b.HasKey("BorrowId");
 
                     b.HasIndex("BookId");
-
-                    b.HasIndex("LibrarianId");
-
-                    b.HasIndex("ReturnVerificationOfficerId");
 
                     b.HasIndex("UserId");
 
@@ -366,16 +347,6 @@ namespace LibraryManagementSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("LibraryManagementSystem.Models.LibraryEmployee", "Librarian")
-                        .WithMany()
-                        .HasForeignKey("LibrarianId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("LibraryManagementSystem.Models.LibraryEmployee", "ReturnVerificationOfficer")
-                        .WithMany()
-                        .HasForeignKey("ReturnVerificationOfficerId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("LibraryManagementSystem.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -383,10 +354,6 @@ namespace LibraryManagementSystem.Migrations
                         .IsRequired();
 
                     b.Navigation("Book");
-
-                    b.Navigation("Librarian");
-
-                    b.Navigation("ReturnVerificationOfficer");
 
                     b.Navigation("User");
                 });

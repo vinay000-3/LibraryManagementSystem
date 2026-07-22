@@ -67,5 +67,18 @@ namespace LibraryManagementSystem.Helpers
         {
             return GenerateNextId("FN", lastFineId);
         }
+
+        // Generate Library Employee Id
+        public static string GenerateEmployeeId(string? lastEmployeeId)
+{
+    if (string.IsNullOrWhiteSpace(lastEmployeeId))
+        return "EMP0001";
+
+    int number = int.Parse(lastEmployeeId.Substring(3));
+
+    number++;
+
+    return $"EMP{number:D4}";
+}
     }
 }

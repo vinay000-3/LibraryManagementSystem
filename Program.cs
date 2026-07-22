@@ -8,12 +8,17 @@ using Microsoft.OpenApi.Models;
 using LibraryManagementSystem.Interfaces;
 using LibraryManagementSystem.Services;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<IBorrowService, BorrowService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<JwtHelper>();
+builder.Services.AddScoped<StaffJwtHelper>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

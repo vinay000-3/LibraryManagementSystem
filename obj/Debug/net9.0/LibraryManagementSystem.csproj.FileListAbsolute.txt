@@ -8,8 +8,10 @@ C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\LibraryManagementSystem.
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\LibraryManagementSystem.pdb
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\BCrypt-Net-Next.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Humanizer.dll
+C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.AspNetCore.OpenApi.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.Bcl.Cryptography.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.Build.Locator.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.CodeAnalysis.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.CodeAnalysis.CSharp.dll
@@ -22,6 +24,12 @@ C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.EntityFramewor
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Design.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Relational.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.Extensions.DependencyModel.dll
+C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.OpenApi.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Mono.TextTemplating.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\MySqlConnector.dll
@@ -35,6 +43,7 @@ C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\System.Composition.Conve
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\System.Composition.Hosting.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\System.Composition.Runtime.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\System.Composition.TypedParts.dll
+C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.resources.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.resources.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.resources.dll
@@ -124,12 +133,3 @@ C:\Users\Nagav\LibraryManagementSystem\obj\Debug\net9.0\refint\LibraryManagement
 C:\Users\Nagav\LibraryManagementSystem\obj\Debug\net9.0\LibraryManagementSystem.pdb
 C:\Users\Nagav\LibraryManagementSystem\obj\Debug\net9.0\LibraryManagementSystem.genruntimeconfig.cache
 C:\Users\Nagav\LibraryManagementSystem\obj\Debug\net9.0\ref\LibraryManagementSystem.dll
-C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.Bcl.Cryptography.dll
-C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
-C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
-C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
-C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
-C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
-C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
-C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.dll
-C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll

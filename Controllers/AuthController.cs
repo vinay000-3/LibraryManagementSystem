@@ -53,13 +53,12 @@ public AuthController(
                 request.Gender,
                 request.MembershipPlanId,
                 request.PaidMembershipFee,
-                UserRole.Member,
                 RegistrationStatus.Pending);
         }
 
-        // ---------------- ADMIN REGISTRATION ----------------
-
-        [HttpPost("admin/register")]
+        // ---------------- ADMIN REGISTER USERS----------------
+[Authorize(Roles = "Admin")]
+        [HttpPost("admin/register-member")]
         public async Task<IActionResult> AdminRegister(AdminRegisterUserRequest request)
         {
             if (!ModelState.IsValid)
@@ -77,7 +76,6 @@ public AuthController(
                 request.Gender,
                 request.MembershipPlanId,
                 request.PaidMembershipFee,
-                request.UserRole,
                 RegistrationStatus.Approved);
         }
 
@@ -93,7 +91,6 @@ public AuthController(
             Gender gender,
             string membershipPlanId,
             decimal paidMembershipFee,
-            UserRole userRole,
             RegistrationStatus registrationStatus)
         {
             // Trim Inputs
@@ -181,7 +178,7 @@ string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
                 MembershipStartDate = membershipStartDate,
                 MembershipEndDate = membershipEndDate,
                 RegistrationStatus = registrationStatus,
-                UserRole = userRole,
+                UserRole = UserRole.Member,
                 CreatedDate = DateTime.Now
             };
 
