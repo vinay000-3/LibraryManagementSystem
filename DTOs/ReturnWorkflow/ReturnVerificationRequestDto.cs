@@ -1,13 +1,8 @@
-using LibraryManagementSystem.Enums;
-
-namespace LibraryManagementSystem.DTOs.ReturnWorkflow
+public class ReturnVerificationRequestDto
 {
-    public class ReturnVerificationRequestDto
-    {
-        public string BorrowId { get; set; } = string.Empty;
-
-        public BookCondition BookCondition { get; set; }
-
-        public bool DamageFinePaid { get; set; }
-    }
+    public string BorrowId { get; set; }
+    public bool IsBookDamaged { get; set; }
+    public decimal? DamageFine { get; set; }
+    public bool LateFinePaid { get; set; }
+    public bool DamageFinePaid { get; set; }
 }

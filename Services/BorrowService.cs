@@ -6,10 +6,11 @@ using LibraryManagementSystem.Models;
 using LibraryManagementSystem.Enums;
 using Microsoft.EntityFrameworkCore;
 using LibraryManagementSystem.DTOs.ReturnWorkflow;
+using Microsoft.AspNetCore.Http;
 
 namespace LibraryManagementSystem.Services
 {
-    using Microsoft.AspNetCore.Http;
+    
 
 public class BorrowService : IBorrowService
 {
@@ -224,7 +225,56 @@ public async Task<LibrarianReviewResponseDto> ReviewReturnByLibrarianAsync(
 public async Task<ReturnVerificationResponseDto> VerifyReturnAsync(
     ReturnVerificationRequestDto request)
 {
-    throw new NotImplementedException();
+    var employeeId = _httpContextAccessor.HttpContext?.User
+        .FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+    if (string.IsNullOrEmpty(employeeId))
+        throw new Exception("Employee is not authenticated.");
+
+    var borrow = await _context.BorrowBooks
+        .Include(x => x.Book)
+        .FirstOrDefaultAsync(x =>
+            x.BorrowId == request.BorrowId &&
+            x.ReturnStatus == ReturnStatus.PendingReturnVerificationOfficer);
+
+    if (borrow == null)
+        throw new Exception("Return request not found.");
+
+    if (borrow.Book == null)
+        throw new Exception("Book not found.");
+
+        if (request.IsBookDamaged)
+{
+    if (!request.DamageFine.HasValue || request.DamageFine.Value <= 0)
+        throw new Exception("Please enter a valid damage fine.");
+
+       if (request.IsBookDamaged)
+{
+    borrow.DamageFine = request.DamageFine.Value;
+    borrow.DamageFinePaid = request.DamageFinePaid;
 }
-    }
+else
+{
+    borrow.DamageFine = 0;
+    borrow.DamageFinePaid = false;
 }
+
+
+
+borrow.LateFinePaid = request.LateFinePaid;
+borrow.ReturnVerificationOfficerId = employeeId;
+borrow.ReturnDate = DateTime.Now;
+borrow.BorrowStatus = BorrowStatus.Returned;
+borrow.ReturnStatus = ReturnStatus.Completed;
+}
+
+return new ReturnVerificationResponseDto
+{
+    BorrowId = borrow.BorrowId,
+    DamageFine = borrow.DamageFine,
+    Message = "Book returned successfully."
+};
+
+borrow.Book.AvailableCopies++;
+borrow.Book.BorrowedCopies--;
+}}}

@@ -70,5 +70,15 @@ public async Task<IActionResult> ReviewReturnByLibrarian(LibrarianReviewRequestD
         return BadRequest(ex.Message);
     }
 }
+
+[Authorize(Roles = "ReturnVerificationOfficer")]
+[HttpPost("verify-return")]
+public async Task<IActionResult> VerifyReturn(
+    ReturnVerificationRequestDto request)
+{
+    var result = await _borrowService.VerifyReturnAsync(request);
+
+    return Ok(result);
+}
     }
 }
