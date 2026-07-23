@@ -10,8 +10,6 @@ using Microsoft.AspNetCore.Http;
 
 namespace LibraryManagementSystem.Services
 {
-    
-
 public class BorrowService : IBorrowService
 {
     private readonly LibraryDbContext _context;
@@ -243,38 +241,38 @@ public async Task<ReturnVerificationResponseDto> VerifyReturnAsync(
     if (borrow.Book == null)
         throw new Exception("Book not found.");
 
-        if (request.IsBookDamaged)
-{
-    if (!request.DamageFine.HasValue || request.DamageFine.Value <= 0)
-        throw new Exception("Please enter a valid damage fine.");
+    // Damage Fine
+    if (request.IsBookDamaged)
+    {
+        if (!request.DamageFine.HasValue || request.DamageFine.Value <= 0)
+            throw new Exception("Please enter a valid damage fine.");
 
-       if (request.IsBookDamaged)
-{
-    borrow.DamageFine = request.DamageFine.Value;
-    borrow.DamageFinePaid = request.DamageFinePaid;
-}
-else
-{
-    borrow.DamageFine = 0;
-    borrow.DamageFinePaid = false;
-}
+        borrow.DamageFine = request.DamageFine.Value;
+        borrow.DamageFinePaid = request.DamageFinePaid;
+    }
+    else
+    {
+        borrow.DamageFine = 0;
+        borrow.DamageFinePaid = false;
+    }
 
+    // Update Return Details
+    borrow.LateFinePaid = request.LateFinePaid;
+    borrow.ReturnVerificationOfficerId = employeeId;
+    borrow.ReturnDate = DateTime.Now;
+    borrow.BorrowStatus = BorrowStatus.Returned;
+    borrow.ReturnStatus = ReturnStatus.Completed;
 
+    // Update Inventory
+    borrow.Book.AvailableCopies++;
+    borrow.Book.BorrowedCopies--;
 
-borrow.LateFinePaid = request.LateFinePaid;
-borrow.ReturnVerificationOfficerId = employeeId;
-borrow.ReturnDate = DateTime.Now;
-borrow.BorrowStatus = BorrowStatus.Returned;
-borrow.ReturnStatus = ReturnStatus.Completed;
-}
+    await _context.SaveChangesAsync();
 
-return new ReturnVerificationResponseDto
-{
-    BorrowId = borrow.BorrowId,
-    DamageFine = borrow.DamageFine,
-    Message = "Book returned successfully."
-};
-
-borrow.Book.AvailableCopies++;
-borrow.Book.BorrowedCopies--;
+    return new ReturnVerificationResponseDto
+    {
+        BorrowId = borrow.BorrowId,
+        DamageFine = borrow.DamageFine,
+        Message = "Book returned successfully."
+    };
 }}}

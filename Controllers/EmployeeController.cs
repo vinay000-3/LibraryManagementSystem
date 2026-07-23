@@ -27,7 +27,11 @@ namespace LibraryManagementSystem.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
             }
         }
 

@@ -105,13 +105,21 @@ public AuthController(
 
             if (membershipPlan == null)
             {
-                return BadRequest("Invalid Membership Plan.");
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Invalid Membership Plan Id."
+                });
             }
 
             // Validate Membership Fee
             if (paidMembershipFee != membershipPlan.MembershipFee)
             {
-                return BadRequest("Membership Fee does not match the selected Membership Plan.");
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = $"Paid Membership Fee must be equal to {membershipPlan.MembershipFee}."
+                });
             }
 
             // Check Duplicate Email
@@ -120,7 +128,11 @@ public AuthController(
 
             if (emailExists)
             {
-                return BadRequest("Email already exists.");
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Email already exists."
+                });
             }
 
             // Check Duplicate Mobile Number
@@ -129,7 +141,11 @@ public AuthController(
 
             if (mobileExists)
             {
-                return BadRequest("Mobile Number already exists.");
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Mobile Number already exists."
+                });
             }
 
             // Validate Age
@@ -142,7 +158,11 @@ public AuthController(
 
             if (age < 12)
             {
-                return BadRequest("User must be at least 12 years old.");
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "User must be at least 12 years old to register."
+                });
             }
 
             // Generate User Id
@@ -226,12 +246,20 @@ public async Task<IActionResult> ApproveRegistration(string userId)
 
     if (user == null)
     {
-        return NotFound("User not found.");
+        return NotFound(new
+        {
+            Success = false,
+            Message = "User not found."
+        });
     }
 
     if (user.RegistrationStatus == RegistrationStatus.Approved)
     {
-        return BadRequest("User is already approved.");
+        return BadRequest(new
+        {
+            Success = false,
+            Message = "User is already approved."
+        });
     }
 
     user.RegistrationStatus = RegistrationStatus.Approved;
@@ -262,7 +290,11 @@ public async Task<IActionResult> RejectRegistration(
 
     if (user == null)
     {
-        return NotFound("User not found.");
+        return NotFound(new
+        {
+            Success = false,
+            Message = "User not found."
+        });
     }
 
     user.RegistrationStatus = RegistrationStatus.Rejected;
@@ -295,18 +327,30 @@ public async Task<IActionResult> Login(LoginRequest request)
 
     if (user == null)
     {
-        return BadRequest("Invalid Email or Password.");
+        return BadRequest(new
+        {
+            Success = false,
+            Message = "Invalid Email or Password."
+        });
     }
 
     // Check Registration Status
     if (user.RegistrationStatus == RegistrationStatus.Pending)
     {
-        return BadRequest("Your registration is pending admin approval.");
+        return BadRequest(new
+        {
+            Success = false,
+            Message = "Your registration is still pending approval."
+        });
     }
 
     if (user.RegistrationStatus == RegistrationStatus.Rejected)
     {
-        return BadRequest("Your registration has been rejected.");
+        return BadRequest(new
+        {
+            Success = false,
+            Message = "Your registration has been rejected."
+        });
     }
 
     // Verify Password
@@ -316,7 +360,11 @@ public async Task<IActionResult> Login(LoginRequest request)
 
     if (!isPasswordValid)
     {
-        return BadRequest("Invalid Email or Password.");
+        return BadRequest(new
+        {
+            Success = false,
+            Message = "Invalid Email or Password."
+        });
     }
 
     string token = _jwtHelper.GenerateToken(user);

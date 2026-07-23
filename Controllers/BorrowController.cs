@@ -18,7 +18,7 @@ namespace LibraryManagementSystem.Controllers
         {
             _borrowService = borrowService;
         }
-
+        [Authorize(Roles = "Member")]
         [HttpPost("borrow")]
         public async Task<IActionResult> BorrowBook(BorrowBookRequestDto request)
         {
@@ -67,7 +67,11 @@ public async Task<IActionResult> ReviewReturnByLibrarian(LibrarianReviewRequestD
     }
     catch (Exception ex)
     {
-        return BadRequest(ex.Message);
+        return BadRequest(new
+        {
+            Success = false,
+            Message = ex.Message
+        });
     }
 }
 

@@ -41,10 +41,18 @@ public async Task<IActionResult> Login(StaffLoginRequestDto request)
         employee.PasswordHash);
 
     if (!isPasswordValid)
-        return BadRequest("Invalid email or password.");
+        return BadRequest(new
+        {
+            Success = false,
+            Message = "Invalid email or password."
+        });
 
     if (employee.Status != Enums.EmployeeStatus.Active)
-        return BadRequest("Employee account is inactive.");
+        return BadRequest(new
+        {
+            Success = false,
+            Message = "Employee account is inactive."
+        });
 
     string token = _staffJwtHelper.GenerateToken(employee);
 
@@ -68,7 +76,11 @@ private async Task<IActionResult> RegisterEmployee(
         .FirstOrDefaultAsync(x => x.Email == email);
 
     if (existingEmployee != null)
-        return BadRequest("Email already exists.");
+        return BadRequest(new
+        {
+            Success = false,
+            Message = "Email already exists."
+        });
 
     var lastEmployee = await _context.LibraryEmployees
         .OrderByDescending(x => x.EmployeeId)
