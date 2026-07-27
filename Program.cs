@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using LibraryManagementSystem.Interfaces;
 using LibraryManagementSystem.Services;
+using LibraryManagementSystem.EmailConfiguration;
 
 
 
@@ -17,6 +18,8 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IBorrowService, BorrowService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddScoped<StaffJwtHelper>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

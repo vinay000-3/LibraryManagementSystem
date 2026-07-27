@@ -133,3 +133,6 @@ C:\Users\Nagav\LibraryManagementSystem\obj\Debug\net9.0\refint\LibraryManagement
 C:\Users\Nagav\LibraryManagementSystem\obj\Debug\net9.0\LibraryManagementSystem.pdb
 C:\Users\Nagav\LibraryManagementSystem\obj\Debug\net9.0\LibraryManagementSystem.genruntimeconfig.cache
 C:\Users\Nagav\LibraryManagementSystem\obj\Debug\net9.0\ref\LibraryManagementSystem.dll
+C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\BouncyCastle.Cryptography.dll
+C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\MailKit.dll
+C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\MimeKit.dll

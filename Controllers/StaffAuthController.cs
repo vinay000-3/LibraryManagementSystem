@@ -34,7 +34,11 @@ public async Task<IActionResult> Login(StaffLoginRequestDto request)
         .FirstOrDefaultAsync(x => x.Email == request.Email);
 
     if (employee == null)
-        return BadRequest("Invalid email or password.");
+        return BadRequest(new
+        {
+            Success = false,
+            Message = "Invalid email or password."
+        });
 
     bool isPasswordValid = BCrypt.Net.BCrypt.Verify(
         request.Password,

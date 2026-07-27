@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 
 
+
 namespace LibraryManagementSystem.Controllers
 {
     [ApiController]
@@ -17,13 +18,16 @@ namespace LibraryManagementSystem.Controllers
     {
         private readonly LibraryDbContext _context;
 private readonly JwtHelper _jwtHelper;
+private readonly IEmailService _emailService;
 
 public AuthController(
     LibraryDbContext context,
-    JwtHelper jwtHelper)
+    JwtHelper jwtHelper,
+    IEmailService emailService)
 {
     _context = context;
     _jwtHelper = jwtHelper;
+    _emailService = emailService;
 }
 [AllowAnonymous]
         [HttpGet("test")]
@@ -265,6 +269,10 @@ public async Task<IActionResult> ApproveRegistration(string userId)
     user.RegistrationStatus = RegistrationStatus.Approved;
 
     await _context.SaveChangesAsync();
+
+    await _emailService.SendWelcomeEmailAsync(
+        user.Email,
+        user.FullName);
 
     return Ok(new
     {
