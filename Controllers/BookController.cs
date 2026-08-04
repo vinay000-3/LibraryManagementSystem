@@ -4,18 +4,22 @@ using LibraryManagementSystem.Enums;
 using LibraryManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using LibraryManagementSystem.Interfaces;
 
 namespace LibraryManagementSystem.Controllers
+
 {
     [ApiController]
     [Route("api/[controller]")]
     public class BookController : ControllerBase
     {
         private readonly LibraryDbContext _context;
+        private readonly IImageService _imageService;
 
-        public BookController(LibraryDbContext context)
+        public BookController(LibraryDbContext context, IImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
         [HttpGet("test")]
@@ -24,6 +28,7 @@ namespace LibraryManagementSystem.Controllers
             return Ok("Book Controller is Working");
         }
         [HttpPost("create")]
+[Consumes("multipart/form-data")]
 public async Task<IActionResult> Create(CreateBookRequest request)
 {
     // Validate Request
@@ -76,6 +81,9 @@ public async Task<IActionResult> Create(CreateBookRequest request)
         bookId = "BK" + (number + 1).ToString("D4");
     }
 
+    string? coverImageUrl = await _imageService
+    .SaveImageAsync(request.CoverImage, "books");
+
     
     var book = new Book
     {
@@ -83,6 +91,7 @@ public async Task<IActionResult> Create(CreateBookRequest request)
         Title = request.Title,
         Author = request.Author,
         Publisher = request.Publisher,
+        CoverImageUrl = coverImageUrl,
         CategoryId = request.CategoryId,
         Language = request.Language,
         Edition = request.Edition,
@@ -136,6 +145,7 @@ public async Task<IActionResult> GetBookById(string id)
     return Ok(book);
 }
 [HttpPut("{id}")]
+[Consumes("multipart/form-data")]
 public async Task<IActionResult> UpdateBook(string id, UpdateBookRequest request)
 {
     if (!ModelState.IsValid)
@@ -184,8 +194,21 @@ public async Task<IActionResult> UpdateBook(string id, UpdateBookRequest request
         return BadRequest("Another book with the same Title and Author already exists.");
     }
 
+    
+
     // Calculate copy difference
     int difference = request.TotalCopies - book.TotalCopies;
+
+    string? coverImageUrl = await _imageService
+    .SaveImageAsync(request.CoverImage, "books");
+    if (coverImageUrl != null)
+{
+    Console.WriteLine($"Old Image: {book.CoverImageUrl}");
+Console.WriteLine($"New Image: {coverImageUrl}");
+    _imageService.DeleteImage(book.CoverImageUrl);
+
+    book.CoverImageUrl = coverImageUrl;
+}
 
     book.Title = request.Title;
     book.Author = request.Author;

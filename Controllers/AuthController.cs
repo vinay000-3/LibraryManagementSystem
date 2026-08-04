@@ -274,6 +274,8 @@ public async Task<IActionResult> ApproveRegistration(string userId)
         user.Email,
         user.FullName);
 
+        
+
     return Ok(new
     {
         Success = true,

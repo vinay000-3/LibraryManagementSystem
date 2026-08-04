@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using LibraryManagementSystem.Enums;
+using Microsoft.AspNetCore.Http;
 
 namespace LibraryManagementSystem.DTOs
 {
@@ -42,5 +43,7 @@ namespace LibraryManagementSystem.DTOs
 
         [StringLength(500)]
         public string? Description { get; set; }
+
+        public IFormFile? CoverImage { get; set; }
     }
 }

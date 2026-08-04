@@ -58,6 +58,8 @@ namespace LibraryManagementSystem.Models
         [StringLength(500)]
         public string? Description { get; set; }
 
+        public string? CoverImageUrl { get; set; }
+
         public DateTime CreatedDate { get; set; } = DateTime.Now;
     }
 }

@@ -136,3 +136,4 @@ C:\Users\Nagav\LibraryManagementSystem\obj\Debug\net9.0\ref\LibraryManagementSys
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\BouncyCastle.Cryptography.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\MailKit.dll
 C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\MimeKit.dll
+C:\Users\Nagav\LibraryManagementSystem\bin\Debug\net9.0\LibraryManagementSystem.staticwebassets.runtime.json

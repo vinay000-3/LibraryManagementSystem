@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using LibraryManagementSystem.Enums;
-
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 namespace LibraryManagementSystem.DTOs
 {
     public class CreateBookRequest
@@ -42,5 +43,7 @@ namespace LibraryManagementSystem.DTOs
 
         [StringLength(500)]
         public string? Description { get; set; }
+
+        public IFormFile? CoverImage { get; set; }
     }
 }
