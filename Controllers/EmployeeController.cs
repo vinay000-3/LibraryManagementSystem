@@ -2,6 +2,7 @@ using LibraryManagementSystem.DTOs.Employee;
 using LibraryManagementSystem.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using LibraryManagementSystem.Enums;
 
 namespace LibraryManagementSystem.Controllers
 {
@@ -17,23 +18,13 @@ namespace LibraryManagementSystem.Controllers
             _employeeService = employeeService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllEmployees()
-        {
-            try
-            {
-                var result = await _employeeService.GetAllEmployeesAsync();
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = ex.Message
-                });
-            }
-        }
+       [HttpGet]
+public async Task<IActionResult> GetEmployees([FromQuery] StaffRole? role)
+{
+    var result = await _employeeService.GetEmployeesAsync(role);
+
+    return Ok(result);
+}
 
         [HttpGet("{employeeId}")]
         public async Task<IActionResult> GetEmployeeById(string employeeId)
@@ -80,5 +71,20 @@ namespace LibraryManagementSystem.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("search")]
+public async Task<IActionResult> SearchEmployees(string keyword)
+{
+    try
+    {
+        var result = await _employeeService.SearchEmployeesAsync(keyword);
+
+        return Ok(result);
+    }
+    catch (Exception ex)
+    {
+        return BadRequest(ex.Message);
+    }
+}
     }
 }

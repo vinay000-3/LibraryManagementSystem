@@ -7,7 +7,7 @@ using LibraryManagementSystem.Enums;
 using Microsoft.EntityFrameworkCore;
 using LibraryManagementSystem.DTOs.ReturnWorkflow;
 using Microsoft.AspNetCore.Http;
-
+using LibraryManagementSystem.Services;
 namespace LibraryManagementSystem.Services
 {
 public class BorrowService : IBorrowService
@@ -105,25 +105,21 @@ public async Task<BorrowBookResponseDto> BorrowBookAsync(BorrowBookRequestDto re
         BorrowStatus = BorrowStatus.Borrowed,
         ReturnStatus = ReturnStatus.None
     };
-
-    // 9. Update Inventory
+    _context.BorrowBooks.Add(borrow);
+    // 9. Update Book Inventory
     book.AvailableCopies--;
     book.BorrowedCopies++;
-
-    _context.BorrowBooks.Add(borrow);
-
     await _context.SaveChangesAsync();
+    return new BorrowBookResponseDto
+{
+    BorrowId = borrowId,
+    UserName = user.FullName,
+    BookTitle = book.Title,
+    BorrowDate = borrow.BorrowDate,
+    DueDate = dueDate,
+    Message = "Book borrowed successfully."
+};
 
-    // 10. Return Response
-       return new BorrowBookResponseDto
-    {
-        BorrowId = borrowId,
-        UserName = user.FullName,
-        BookTitle = book.Title,
-        BorrowDate = borrow.BorrowDate,
-        DueDate = dueDate,
-        Message = "Book borrowed successfully."
-    };
 }
 
 public async Task<ReturnBookResponseDto> ReturnBookAsync(ReturnBookRequestDto request)
@@ -263,16 +259,56 @@ public async Task<ReturnVerificationResponseDto> VerifyReturnAsync(
     borrow.BorrowStatus = BorrowStatus.Returned;
     borrow.ReturnStatus = ReturnStatus.Completed;
 
-    // Update Inventory
+if (request.IsBookDamaged)
+{
+    // Generate Damage Id
+    string damageId = "DM0001";
+
+    var lastDamage = await _context.BookDamageRecords
+        .OrderByDescending(x => x.DamageRecordId)
+        .FirstOrDefaultAsync();
+
+    if (lastDamage != null)
+    {
+        int number = int.Parse(lastDamage.DamageRecordId.Substring(2));
+        damageId = "DM" + (number + 1).ToString("D4");
+    }
+
+    var damageRecord = new BookDamageRecord
+    {
+        DamageRecordId = damageId,
+        BorrowId = borrow.BorrowId,
+        BookId = borrow.BookId,
+        UserId = borrow.UserId,
+        ReturnVerificationOfficerId = employeeId,
+
+        DamageLevel = request.DamageLevel,
+        Recommendation = request.Recommendation,
+        DamageDescription = request.DamageDescription,
+
+        FineAmount = request.DamageFine.Value,
+        FineCollected = request.DamageFinePaid,
+
+        DamageStatus = DamageStatus.PendingAdminDecision
+    };
+
+    _context.BookDamageRecords.Add(damageRecord);
+
+    borrow.Book.BorrowedCopies--;
+    borrow.Book.DamagedCopies++;
+}
+else
+{
     borrow.Book.AvailableCopies++;
     borrow.Book.BorrowedCopies--;
+}
 
     await _context.SaveChangesAsync();
 
     return new ReturnVerificationResponseDto
     {
         BorrowId = borrow.BorrowId,
-        DamageFine = borrow.DamageFine,
-        Message = "Book returned successfully."
+        Message = "Return verified successfully."
     };
+   
 }}}

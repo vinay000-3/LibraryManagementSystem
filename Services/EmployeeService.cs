@@ -2,6 +2,7 @@ using LibraryManagementSystem.Data;
 using LibraryManagementSystem.DTOs.Employee;
 using LibraryManagementSystem.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using LibraryManagementSystem.Enums;
 
 namespace LibraryManagementSystem.Services
 {
@@ -14,9 +15,16 @@ namespace LibraryManagementSystem.Services
             _context = context;
         }
 
-        public async Task<List<EmployeeResponseDto>> GetAllEmployeesAsync()
+        public async Task<List<EmployeeResponseDto>> GetEmployeesAsync(StaffRole? role)
 {
-    var employees = await _context.LibraryEmployees
+    var query = _context.LibraryEmployees.AsQueryable();
+
+    if (role.HasValue)
+    {
+        query = query.Where(x => x.Role == role.Value);
+    }
+
+    var employees = await query
         .OrderBy(x => x.EmployeeId)
         .Select(x => new EmployeeResponseDto
         {
@@ -86,6 +94,32 @@ public async Task<string> UpdateEmployeeAsync(string employeeId, UpdateEmployeeR
     await _context.SaveChangesAsync();
 
     return $"Employee status changed to {request.Status}.";
+}
+
+public async Task<List<EmployeeResponseDto>> SearchEmployeesAsync(string keyword)
+{
+    keyword = keyword.Trim().ToLower();
+
+    var employees = await _context.LibraryEmployees
+        .Where(x =>
+            x.EmployeeId.ToLower().Contains(keyword) ||
+            x.FullName.ToLower().Contains(keyword) ||
+            x.Email.ToLower().Contains(keyword) ||
+            x.Role.ToString().ToLower().Contains(keyword) ||
+            x.Status.ToString().ToLower().Contains(keyword))
+        .OrderBy(x => x.EmployeeId)
+        .Select(x => new EmployeeResponseDto
+        {
+            EmployeeId = x.EmployeeId,
+            FullName = x.FullName,
+            Email = x.Email,
+            Role = x.Role.ToString(),
+            Status = x.Status.ToString(),
+            CreatedDate = x.CreatedDate
+        })
+        .ToListAsync();
+
+    return employees;
 }
     }
 }

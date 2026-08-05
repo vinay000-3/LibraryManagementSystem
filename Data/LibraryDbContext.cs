@@ -22,6 +22,8 @@ namespace LibraryManagementSystem.Data
 
         public DbSet<LibraryEmployee> LibraryEmployees { get; set; }
 
+        public DbSet<BookDamageRecord> BookDamageRecords { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -37,6 +39,30 @@ namespace LibraryManagementSystem.Data
                 .WithMany()
                 .HasForeignKey(b => b.ReturnVerificationOfficerId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+modelBuilder.Entity<BookDamageRecord>()
+    .HasOne(x => x.Book)
+    .WithMany()
+    .HasForeignKey(x => x.BookId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+modelBuilder.Entity<BookDamageRecord>()
+    .HasOne(x => x.User)
+    .WithMany()
+    .HasForeignKey(x => x.UserId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+modelBuilder.Entity<BookDamageRecord>()
+    .HasOne(x => x.BorrowBook)
+    .WithMany()
+    .HasForeignKey(x => x.BorrowId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+modelBuilder.Entity<BookDamageRecord>()
+    .HasOne(x => x.ReturnVerificationOfficer)
+    .WithMany()
+    .HasForeignKey(x => x.ReturnVerificationOfficerId)
+    .OnDelete(DeleteBehavior.Restrict);    
         }
     }
 }

@@ -53,6 +53,8 @@ namespace LibraryManagementSystem.Models
 
         public int ReservedCopies { get; set; }
 
+        public int DamagedCopies { get; set; }
+
         public BookStatus BookStatus { get; set; }
 
         [StringLength(500)]
