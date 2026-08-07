@@ -1,5 +1,7 @@
 using LibraryManagementSystem.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace LibraryManagementSystem.Controllers
 {
@@ -21,5 +23,24 @@ namespace LibraryManagementSystem.Controllers
 
             return Ok(dashboard);
         }
+
+        [HttpGet("user")]
+[Authorize(Roles = "Member")]
+public async Task<IActionResult> GetUserDashboard()
+{
+    try
+    {
+        var result = await _dashboardService.GetUserDashboardAsync();
+        return Ok(result);
+    }
+    catch (Exception ex)
+    {
+        return BadRequest(new
+        {
+            Success = false,
+            Message = ex.Message
+        });
+    }
+}
     }
 }

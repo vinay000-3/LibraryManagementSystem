@@ -3,6 +3,8 @@ using LibraryManagementSystem.Interfaces;
 using LibraryManagementSystem.DTOs.Dashboard;
 using LibraryManagementSystem.Enums;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+
 
 namespace LibraryManagementSystem.Services
 {
@@ -10,9 +12,12 @@ namespace LibraryManagementSystem.Services
     {
         private readonly LibraryDbContext _context;
 
-        public DashboardService(LibraryDbContext context)
+        private readonly IHttpContextAccessor _httpContextAccessor;  
+
+        public DashboardService(LibraryDbContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<AdminDashboardResponseDto> GetAdminDashboardAsync()
@@ -123,6 +128,81 @@ dashboard.LowStockBooks = await _context.Books
     })
     .ToListAsync();
 
+
+    return dashboard;
+}
+
+public async Task<UserDashboardResponseDto> GetUserDashboardAsync()
+{
+    var userId = _httpContextAccessor.HttpContext?.User
+        .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    if (string.IsNullOrEmpty(userId))
+        throw new Exception("User is not authenticated.");
+
+    var user = await _context.Users
+        .Include(x => x.MembershipPlan)
+        .FirstOrDefaultAsync(x => x.UserId == userId);
+
+    if (user == null)
+        throw new Exception("User not found.");
+
+    var borrowRecords = await _context.BorrowBooks
+        .Include(x => x.Book)
+        .Where(x => x.UserId == userId)
+        .ToListAsync();
+
+    var dashboard = new UserDashboardResponseDto
+    {
+        UserId = user.UserId,
+        FullName = user.FullName,
+        MembershipPlan = user.MembershipPlan!.MembershipName,
+        MembershipStatus = user.RegistrationStatus.ToString(),
+        MembershipStartDate = user.MembershipStartDate,
+        MembershipEndDate = user.MembershipEndDate,
+
+        CurrentlyBorrowedBooks = borrowRecords.Count(x =>
+            x.BorrowStatus == BorrowStatus.Borrowed),
+
+        TotalBorrowedBooks = borrowRecords.Count,
+
+        TotalReturnedBooks = borrowRecords.Count(x =>
+            x.BorrowStatus == BorrowStatus.Returned),
+
+        OverdueBooks = borrowRecords.Count(x =>
+            x.BorrowStatus == BorrowStatus.Borrowed &&
+            x.DueDate.Date < DateTime.Now.Date),
+
+        TotalLateFine = borrowRecords.Sum(x => x.LateFine),
+
+        TotalDamageFine = borrowRecords.Sum(x => x.DamageFine),
+
+        PendingFine = borrowRecords
+            .Where(x => !x.LateFinePaid || !x.DamageFinePaid)
+            .Sum(x => x.LateFine + x.DamageFine)
+    };
+        dashboard.CurrentBorrowedBooks = borrowRecords
+        .Where(x => x.BorrowStatus == BorrowStatus.Borrowed)
+        .Select(x => new UserBorrowedBookDto
+        {
+            BorrowId = x.BorrowId,
+            BookTitle = x.Book!.Title,
+            BorrowDate = x.BorrowDate,
+            DueDate = x.DueDate,
+            DaysRemaining = (x.DueDate.Date - DateTime.Now.Date).Days
+        })
+        .ToList();
+
+    dashboard.RecentActivities = borrowRecords
+        .OrderByDescending(x => x.BorrowDate)
+        .Take(5)
+        .Select(x => new UserActivityDto
+        {
+            BookTitle = x.Book!.Title,
+            Action = x.BorrowStatus.ToString(),
+            Date = x.ReturnDate ?? x.BorrowDate
+        })
+        .ToList();
 
     return dashboard;
 }
